@@ -11,6 +11,16 @@ class SpotifyClient {
   }
 
   /**
+   * Initialize the client by fetching the access token
+   * Should be called once during server startup
+   */
+  async initialize() {
+    console.log('Initializing Spotify client...');
+    await this.getAccessToken();
+    console.log('Spotify client initialized with cached token');
+  }
+
+  /**
    * Get access token using Client Credentials flow
    * This flow is suitable for server-to-server authentication
    */
@@ -50,13 +60,15 @@ class SpotifyClient {
    */
   async makeRequest(endpoint, options = {}) {
     try {
-      const token = await this.getAccessToken();
+      if (!this.accessToken) {
+        throw new Error('Spotify client not initialized. Call initialize() first.');
+      }
       
       const config = {
         method: options.method || 'GET',
         url: `${this.baseURL}${endpoint}`,
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
           ...options.headers
         },
@@ -68,13 +80,13 @@ class SpotifyClient {
     } catch (error) {
       console.error('Spotify API request failed:', error.response?.data || error.message);
       
-      // If token expired, clear it and retry once
+      // If token expired, refresh it and retry once
       if (error.response?.status === 401 && this.accessToken) {
         console.log('Token expired, refreshing...');
         this.accessToken = null;
         this.tokenExpiration = null;
         
-        // Retry the request with fresh token
+        await this.getAccessToken();
         return this.makeRequest(endpoint, options);
       }
       
