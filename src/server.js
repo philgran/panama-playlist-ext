@@ -82,26 +82,34 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Test Spotify connection on startup
-async function testSpotifyConnection() {
+// Initialize Spotify client on startup
+async function initializeSpotifyClient() {
   try {
-    console.log('Testing Spotify API connection...');
-    await spotifyClient.getAccessToken();
-    console.log('✅ Successfully connected to Spotify API');
+    console.log('Initializing Spotify API client...');
+    await spotifyClient.initialize();
+    console.log('✅ Successfully initialized Spotify API client');
   } catch (error) {
-    console.error('❌ Failed to connect to Spotify API:', error.message);
+    console.error('❌ Failed to initialize Spotify API client:', error.message);
     console.error('Please check your SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET');
+    process.exit(1); // Exit if we can't initialize Spotify client
   }
 }
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 API Base URL: http://localhost:${PORT}`);
+async function startServer() {
+  // Initialize Spotify client first
+  await initializeSpotifyClient();
   
-  // Test connection after server starts
-  testSpotifyConnection();
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 API Base URL: http://localhost:${PORT}`);
+  });
+}
+
+startServer().catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
 });
 
 module.exports = app;
