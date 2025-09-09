@@ -124,6 +124,19 @@ class SpotifyClient {
   async getArtistTopTracks(artistId, market = 'US') {
     return this.makeRequest(`/artists/${artistId}/top-tracks?market=${market}`);
   }
+
+  /**
+   * Get saved tracks for a user
+   */
+  async getUserTracks(userId, options = {}) {
+    const params = new URLSearchParams({
+      limit: options.limit || 20,
+      offset: options.offset || 0,
+      market: options.market || 'US'
+    });
+
+    return this.makeRequest(`/${userId}/tracks?${params.toString()}`);
+  }
 }
 
 module.exports = SpotifyClient;

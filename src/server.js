@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const SpotifyClient = require('./services/spotifyClient');
 const searchRoutes = require('./routes/search');
+const userRoutes = require('./routes/user');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,6 +49,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/search', searchRoutes);
+app.use('/api/user', userRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -58,7 +60,8 @@ app.get('/', (req, res) => {
       search: 'GET /api/search?q=query&type=track',
       track: 'GET /api/search/track/:id',
       artist: 'GET /api/search/artist/:id',
-      artistTopTracks: 'GET /api/search/artist/:id/top-tracks'
+      artistTopTracks: 'GET /api/search/artist/:id/top-tracks',
+      userTracks: 'GET /api/user/:userId/tracks'
     },
     documentation: 'https://developer.spotify.com/documentation/web-api/'
   });
