@@ -4,15 +4,23 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 const SpotifyClient = require('./services/spotifyClient');
+const YouTubeClient = require('./services/youtubeClient');
 const searchRoutes = require('./routes/search');
+const youtubeRoutes = require('./routes/youtube');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Validate required environment variables
 if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
-  console.error('Error: Missing required environment variables.');
+  console.error('Error: Missing required Spotify environment variables.');
   console.error('Please set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in your .env file');
+  process.exit(1);
+}
+
+if (!process.env.YOUTUBE_API_KEY) {
+  console.error('Error: Missing required YouTube environment variable.');
+  console.error('Please set YOUTUBE_API_KEY in your .env file');
   process.exit(1);
 }
 
@@ -22,8 +30,14 @@ const spotifyClient = new SpotifyClient(
   process.env.SPOTIFY_CLIENT_SECRET
 );
 
-// Make Spotify client available to all routes
+// Initialize YouTube client
+const youtubeClient = new YouTubeClient(
+  process.env.YOUTUBE_API_KEY
+);
+
+// Make clients available to all routes
 app.locals.spotifyClient = spotifyClient;
+app.locals.youtubeClient = youtubeClient;
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -48,6 +62,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/search', searchRoutes);
+app.use('/api/youtube', youtubeRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -58,7 +73,11 @@ app.get('/', (req, res) => {
       search: 'GET /api/search?q=query&type=track',
       track: 'GET /api/search/track/:id',
       artist: 'GET /api/search/artist/:id',
-      artistTopTracks: 'GET /api/search/artist/:id/top-tracks'
+      artistTopTracks: 'GET /api/search/artist/:id/top-tracks',
+      youtubeSearch: 'GET /api/youtube/search?q=query&type=video',
+      youtubeVideo: 'GET /api/youtube/video/:id',
+      youtubeChannel: 'GET /api/youtube/channel/:id',
+      youtubePlaylist: 'GET /api/youtube/playlist/:id'
     },
     documentation: 'https://developer.spotify.com/documentation/web-api/'
   });
