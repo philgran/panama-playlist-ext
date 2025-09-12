@@ -58,7 +58,8 @@ app.get('/', (req, res) => {
       search: 'GET /api/search?q=query&type=track',
       track: 'GET /api/search/track/:id',
       artist: 'GET /api/search/artist/:id',
-      artistTopTracks: 'GET /api/search/artist/:id/top-tracks'
+      artistTopTracks: 'GET /api/search/artist/:id/top-tracks',
+      audioFeatures: 'GET /api/search/track/:id/audio-features'
     },
     documentation: 'https://developer.spotify.com/documentation/web-api/'
   });

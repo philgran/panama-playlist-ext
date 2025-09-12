@@ -136,6 +136,13 @@ class SpotifyClient {
   async getArtistTopTracks(artistId, market = 'US') {
     return this.makeRequest(`/artists/${artistId}/top-tracks?market=${market}`);
   }
+
+  /**
+   * Get audio features for a track
+   */
+  async getAudioFeatures(trackId) {
+    return this.makeRequest(`/audio-features/${trackId}`);
+  }
 }
 
 module.exports = SpotifyClient;

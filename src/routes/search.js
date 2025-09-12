@@ -136,4 +136,32 @@ router.get('/artist/:id/top-tracks', async (req, res) => {
   }
 });
 
+/**
+ * Get audio features for a track
+ * GET /api/search/track/:id/audio-features
+ */
+router.get('/track/:id/audio-features', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const spotifyClient = req.app.locals.spotifyClient;
+    const audioFeatures = await spotifyClient.getAudioFeatures(id);
+
+    res.json({
+      success: true,
+      trackId: id,
+      audioFeatures
+    });
+
+  } catch (error) {
+    console.error('Get audio features error:', error);
+    
+    res.status(error.response?.status || 500).json({
+      success: false,
+      error: 'Failed to get audio features',
+      message: error.response?.data?.error?.message || error.message
+    });
+  }
+});
+
 module.exports = router;
